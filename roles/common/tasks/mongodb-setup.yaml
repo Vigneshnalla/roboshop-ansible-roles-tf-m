@@ -1,0 +1,53 @@
+- name: Copying mongodb repo
+  ansible.builtin.copy:
+    src: mongodb.repo
+    dest: /etc/yum.repos.d/mongodb.repo
+
+- name: Install MongoDB shell (mongosh)
+  ansible.builtin.package:
+    name: mongodb-mongosh
+    state: present
+
+- name: Checking MONGODB_HOST
+  ansible.builtin.debug:
+    msg: "MONGODB_HOST is {{ MONGODB_HOST }}"
+
+- name: Checking if MongoDB server is up
+  ansible.builtin.shell: >
+    mongosh --host {{ MONGODB_HOST }} --eval "db.adminCommand('ping')"
+  register: mongo_status
+  failed_when: "'ok' not in mongo_status.stdout"
+
+- name: Debugging mongo_status
+  ansible.builtin.debug:
+    msg: "mongo_status is: {{ mongo_status }}"
+
+- name: Get the catalogue entries count
+  ansible.builtin.shell: >
+    mongosh --host {{ MONGODB_HOST }} --quiet --eval 'db = db.getSiblingDB("catalogue"); print(db.products.countDocuments())'
+  register: products_count
+  when: component == "catalogue" and mongo_status is defined and 'ok' in mongo_status.stdout
+
+- name: "Debug: Check products_count value"
+  ansible.builtin.debug:
+    msg: "The value of products_count is: {{ products_count.stdout | default('not available') }}"
+
+- name: Get the user entries count
+  ansible.builtin.shell: >
+    mongosh --host {{ MONGODB_HOST }} --quiet --eval 'db = db.getSiblingDB("users"); print(db.users.countDocuments())'
+  register: users_count
+  when: component == "user" and mongo_status is defined and 'ok' in mongo_status.stdout
+
+- name: "Debug: Check users_count value"
+  ansible.builtin.debug:
+    msg: "The value of users_count is: {{ users_count.stdout | default('not available') }}"
+
+- name: Load catalogue data if no data exists
+  ansible.builtin.shell: >
+    mongosh --host {{ MONGODB_HOST }} < /app/schema/{{ component }}.js
+  when: component == "catalogue" and (products_count.stdout | default('0') | int) == 0
+
+- name: Load user data if no data exists
+  ansible.builtin.shell: >
+    mongosh --host {{ MONGODB_HOST }} < /app/schema/{{ component }}.js
+  when: component == "user" and (users_count.stdout | default('0') | int) == 0
