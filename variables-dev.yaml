@@ -1,1 +1,10 @@
 MONGODB_HOST: mongodb-dev.vigneshdev.online
+REDIS_HOST: redis-dev.vigneshdev.online
+MYSQL_HOST: mysql-dev.vigneshdev.online
+RABBITMQ_HOST: rabbitmq-dev.vigneshdev.online
+CATALOGUE_HOST: catalogue.app-dev.vigneshdev.online
+USER_HOST: user.app-dev.vigneshdev.online
+CART_HOST: cart.app-dev.vigneshdev.online
+SHIPPING_HOST: shipping.app-dev.vigneshdev.online
+PAYMENT_HOST: payment.app-dev.vigneshdev.online
+DISPATCH_HOST: dispatch.app-dev.vigneshdev.online
