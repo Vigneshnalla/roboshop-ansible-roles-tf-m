@@ -24,11 +24,3 @@
     dest: /app
     remote_src: yes
 
-- name: "Extracting {{ component }} code"
-  ansible.builtin.copy:
-    src: package.json
-    dest: /app/package.json
-    owner: ec2-user
-    group: ec2-user
-    mode: "0644"
-  when: component == 'catalogue'
