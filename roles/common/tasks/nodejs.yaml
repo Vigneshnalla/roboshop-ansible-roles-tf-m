@@ -1,12 +1,10 @@
-- name: Disable old nodejs and enable nodejs 18
+- name: disable old nodejs and enable nodejs
   ansible.builtin.shell: dnf module disable nodejs -y ; dnf module enable nodejs:18 -y
-  when: component == "user"
 
 - name: Install nodejs
   ansible.builtin.dnf:
     name: nodejs
     state: present
-  when: component == "user"
 
 - name: "Copy package.json for user component"
   ansible.builtin.copy:
